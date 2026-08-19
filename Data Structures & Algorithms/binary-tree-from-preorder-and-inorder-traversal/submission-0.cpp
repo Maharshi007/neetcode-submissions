@@ -11,27 +11,25 @@
  */
 
 class Solution {
-    int search(vector<int>inorder, int left, int right,int val)
-    {
-        for(int i=left;i<=right;i++)
-        {
-            if(inorder[i] == val) return i;
-        }
-        return -1;
-    }
-    TreeNode* helper(vector<int>& preorder, vector<int>& inorder,int& preIdx, int left, int right)
-    {
-        if(left > right) return NULL;
-        TreeNode* root = new TreeNode(preorder[preIdx]);   
-        int inIndx = search(inorder,left,right,preorder[preIdx]);
-        preIdx++;
-        root -> left = helper(preorder,inorder,preIdx,left,inIndx-1);
-        root -> right = helper(preorder,inorder,preIdx,inIndx + 1, right);
-        return root;
-    }
-public:
+   public:
     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
-        int preIdx = 0;
-        return helper(preorder,inorder,preIdx,0,inorder.size()-1);
+        unordered_map<int, int> mpp;
+        for (int i = 0; i < inorder.size(); i++) {
+            mpp[inorder[i]] = i;
+        }
+        return buildTree(preorder, 0, preorder.size() - 1, inorder, 0, inorder.size() - 1, mpp);
+    }
+
+    TreeNode* buildTree(vector<int>& preorder, int preStart, int preEnd, vector<int>& inorder,
+                        int inStart, int inEnd, unordered_map<int, int>& mpp) {
+        if (preStart > preEnd) return NULL;
+        TreeNode* root = new TreeNode(preorder[preStart]);
+        int inRoot = mpp[root->val];
+        int numsLeft = inRoot - inStart;
+        root->left = buildTree(preorder, preStart + 1, preStart + numsLeft, inorder, inStart,
+                               inRoot - 1, mpp);
+        root->right =
+            buildTree(preorder, preStart + numsLeft + 1, preEnd, inorder, inRoot + 1, inEnd, mpp);
+        return root;
     }
 };
